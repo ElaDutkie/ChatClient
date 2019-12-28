@@ -76,8 +76,7 @@ public class WebSocketChatController {
         // .diseable, . eneable - np kiedy nie wybrano pliku, a jak wybrano to wyslij
 
         //TODO: zrobić refaktoring projektu - nazwy metody z małej, choosefile upload,
-        //TODO: pogrupować na górze zmienne, po przcinku Óak dla user,
-        // TODO: zastanowić się nad koncepcją, zapytać prowadzącego jak by chciał, czy na serwer czy do konkretnej osoby
+        //TODO: pogrupować na górze zmienne, po przcinku jak dla user,
 
 //        if(){
 
@@ -151,14 +150,15 @@ public class WebSocketChatController {
         }
 
 
-        public void sendFile(String message) {
-            chatTextArea.appendText(user + ": " + message + "\n");
+        public void sendFile(String filePath) {
+            chatTextArea.appendText(user + ": " + filePath + "\n");
             try {
-                System.out.println("File was sent: " + message);
+                System.out.println("File was sent: " + filePath);
                 session.getBasicRemote()
                         .sendBinary(ByteBuffer
                                 .wrap(Files.readAllBytes(new File("D:/KSIAZKI/PPRZajecia.txt")
                                         .toPath())));
+                //TODO: jak w powyższej metodzie przesłac nazwę pliku do serwera razem z bajtami pliku
 
             } catch (IOException ex) {
                 ex.printStackTrace();
