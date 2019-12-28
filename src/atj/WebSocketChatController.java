@@ -1,8 +1,11 @@
 package atj;
 
 import java.awt.Container;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.util.Optional;
 
 import javax.websocket.ClientEndpoint;
@@ -54,6 +57,7 @@ public class WebSocketChatController {
     @FXML
     private void btnSend_Click() {
         webSocketClient.sendMessage(messageTextField.getText());
+
     }
 
     public void closeSession(CloseReason closeReason) {
@@ -65,6 +69,7 @@ public class WebSocketChatController {
     }
 
     public void Upload(ActionEvent actionEvent) {
+        webSocketClient.sendFile(filePathView.getText());
 
         //TODO: sprawdzić czy jest nullem, jak jest to dać użytkonikowi informację
         // metody, które ustawiają niewidoczność komórki
@@ -144,25 +149,21 @@ public class WebSocketChatController {
                 ex.printStackTrace();
             }
         }
-//        private void connectToWebSocketFileServer() {
-//            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-//            try {
-//                URI uri = URI.create("ws://localhost:8080/receive/fileserver");
-//                container.connectToServer(this, uri);
-//            } catch (DeploymentException | IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        public void sendFile(String message) {
-//            chatTextArea.appendText(user + ": " + message + "\n");
-//            try {
-//                System.out.println("Message was sent: " + message);
-//                session.getBasicRemote().sendText(user + ": " + message);
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            }
-//        }
+
+
+        public void sendFile(String message) {
+            chatTextArea.appendText(user + ": " + message + "\n");
+            try {
+                System.out.println("File was sent: " + message);
+                session.getBasicRemote()
+                        .sendBinary(ByteBuffer
+                                .wrap(Files.readAllBytes(new File("D:/KSIAZKI/PPRZajecia.txt")
+                                        .toPath())));
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
 
 
         public void sendFile() {
