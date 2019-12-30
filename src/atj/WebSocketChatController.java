@@ -1,6 +1,5 @@
 package atj;
 
-import java.awt.Container;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -25,19 +24,18 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
+import java.nio.file.Path;
+
 public class WebSocketChatController {
-    @FXML
-    TextField userTextField;
+
     @FXML
     TextArea chatTextArea;
     @FXML
-    TextField messageTextField, filePathView;
+    TextField messageTextField, filePathView, userTextField;
     @FXML
-    Button btnSet, btnUpload;
-    @FXML
-    Button btnSend;
-    private String user;
-    private String filePath;
+    Button btnSet, btnUpload, btnSend;
+
+    private String user, filePath;
     private WebSocketClient webSocketClient;
 
     @FXML
@@ -68,30 +66,29 @@ public class WebSocketChatController {
         }
     }
 
-    public void Upload(ActionEvent actionEvent) {
-        webSocketClient.sendFile(filePathView.getText());
+    public void upload(ActionEvent actionEvent) {
 
-        //TODO: sprawdzić czy jest nullem, jak jest to dać użytkonikowi informację
-        // metody, które ustawiają niewidoczność komórki
-        // .diseable, . eneable - np kiedy nie wybrano pliku, a jak wybrano to wyslij
 
-        //TODO: zrobić refaktoring projektu - nazwy metody z małej, choosefile upload,
-        //TODO: pogrupować na górze zmienne, po przcinku jak dla user,
+//            webSocketClient.sendFile(filePathView.getText(), filePathView.getText());
 
-//        if(){
+//        TODO: sprawdzić dlaczego kod poniżej nie działa
+        if ((filePath.equals(null))) {
+            btnUpload.disableProperty();
+        } else {
+            webSocketClient.sendFile(filePath);
+        }
+//        filePath.equals(null) ? btnUpload.disableProperty() : webSocketClient.sendFile(pathName, filePath); // nie działa :-(
 
-//        }
-//        else{}
     }
 
-    public void ChooseFile(ActionEvent actionEvent) {
+    public void chooseFile(ActionEvent actionEvent) {
 
-        Optional<String> filePath = FilePathChooser.getFilePath();
-        if (filePath.isPresent()) {
-            filePathView.setText(filePath.get());
-            this.filePath = filePath.get();
+        Optional<String> filePathView = FilePathChooser.getFilePath();
+        if (filePathView.isPresent()) {
+            this.filePathView.setText(filePathView.get());
+            this.filePath = filePathView.get();
         } else {
-            filePathView.clear();
+            this.filePathView.clear();
             this.filePath = null;
         }
 
@@ -151,24 +148,34 @@ public class WebSocketChatController {
 
 
         public void sendFile(String filePath) {
-            chatTextArea.appendText(user + ": " + filePath + "\n");
+            Path chosenFileName=new File(filePathView.getText()).toPath();
+            Path fileName = chosenFileName.getFileName();
+
+            chatTextArea.appendText(user + " send you a file: " + chosenFileName
+                    + "\n" + "if you want download this file please click on link "
+                    + fileName + "\n");
             try {
                 System.out.println("File was sent: " + filePath);
+
+                ;
                 session.getBasicRemote()
                         .sendBinary(ByteBuffer
-                                .wrap(Files.readAllBytes(new File("D:/KSIAZKI/PPRZajecia.txt")
-                                        .toPath())));
+                                .wrap(Files.readAllBytes(chosenFileName)));
                 //TODO: jak w powyższej metodzie przesłac nazwę pliku do serwera razem z bajtami pliku
 
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
+        public void getFile(String filePath){
 
 
-        public void sendFile() {
+
 
         }
+
+
+
 
     }
 

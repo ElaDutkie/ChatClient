@@ -18,7 +18,7 @@
       <Button fx:id="btnSend" layoutX="341.0" layoutY="240.0" mnemonicParsing="false" onAction="#btnSend_Click" text="Send" />
       <Label layoutX="19.0" layoutY="312.0" text="Załącznik" />
       <TextField fx:id="filePathView" layoutX="85.0" layoutY="307.0" prefHeight="26.0" prefWidth="250.0" />
-      <Button fx:id="btnChooseFile" layoutX="119.0" layoutY="273.0" mnemonicParsing="false" onAction="#ChooseFile" text="Choose file" />
-      <Button fx:id="btnUpload" layoutX="250.0" layoutY="273.0" mnemonicParsing="false" onAction="#Upload" text="Send file" />
+      <Button fx:id="btnChooseFile" layoutX="119.0" layoutY="273.0" mnemonicParsing="false" onAction="#chooseFile" text="Choose file" />
+      <Button fx:id="btnUpload" layoutX="250.0" layoutY="273.0" mnemonicParsing="false" onAction="#upload" text="Send file" />
    </children>
 </AnchorPane>
