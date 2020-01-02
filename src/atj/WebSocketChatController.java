@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import javax.websocket.ClientEndpoint;
@@ -93,6 +95,7 @@ public class WebSocketChatController {
     @ClientEndpoint
     public class WebSocketClient {
         private Session session;
+        private String uploadingFileName;
 
         public WebSocketClient() {
             connectToWebSocket();
@@ -118,7 +121,22 @@ public class WebSocketChatController {
         @OnMessage
         public void onMessage(String message, Session session) {
             System.out.println("Message was received");
-            chatTextArea.setText(chatTextArea.getText() + message + "\n");
+            // TODO: sprawdzić dlaczego drukowana nazwa pliku jest nullem
+
+            if (message.contains("#123456789#")) {
+                uploadingFileName = message.replace("#123456789#", "");
+
+            } else {
+                chatTextArea.setText(chatTextArea.getText() + message + "\n");
+            }
+        }
+
+        @OnMessage
+        public void onMessage(byte[] buffer, Session session) {
+            System.out.println("File was caught.");
+            System.out.println(uploadingFileName);
+            System.out.println(buffer.length);
+
         }
 
         private void connectToWebSocket() {
@@ -164,17 +182,17 @@ public class WebSocketChatController {
                         .sendBinary(ByteBuffer
                                 .wrap(Files.readAllBytes(file.toPath())));
 
+
             } catch (IOException ex) {
 
                 ex.printStackTrace();
             }
         }
 
+        //TODO: zaimplpementować okienko informujące o przesłaniu pliku z opcją pobierania go
         public void getFile(String filePath) {
 
-
         }
-
 
     }
 
