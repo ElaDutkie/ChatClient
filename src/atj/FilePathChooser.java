@@ -8,10 +8,10 @@ import java.util.Optional;
 
 public class FilePathChooser {
 
-    public static Optional<String> getFilePath() {
+    public static Optional<File> getFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Resource File");
-        File choosenFile = fileChooser.showOpenDialog(null);
-        return Objects.isNull(choosenFile) ? Optional.empty() : Optional.of(choosenFile.getAbsolutePath());
+        File chosenFile = fileChooser.showOpenDialog(null);
+        return Objects.isNull(chosenFile) ? Optional.empty() : Optional.of(chosenFile);
     }
 }

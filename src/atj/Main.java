@@ -17,7 +17,7 @@ public class Main extends Application {
 		Scene scene = new Scene(root);
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("JavaFX Web Socket Client");
-		//primaryStage.setOnHiding(e -> prmaryStage_Hiding(e, fxmlLoader));
+		//primaryStage.setOnHiding(e -> primaryStage_Hiding(e, fxmlLoader));
 		primaryStage.show();
 		
 		} catch (Exception e) {e.printStackTrace();}

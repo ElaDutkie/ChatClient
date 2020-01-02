@@ -24,8 +24,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
-import java.nio.file.Path;
-
 public class WebSocketChatController {
 
     @FXML
@@ -35,7 +33,8 @@ public class WebSocketChatController {
     @FXML
     Button btnSet, btnUpload, btnSend;
 
-    private String user, filePath;
+    private String user;
+    private File file;
     private WebSocketClient webSocketClient;
 
     @FXML
@@ -54,7 +53,8 @@ public class WebSocketChatController {
 
     @FXML
     private void btnSend_Click() {
-        webSocketClient.sendMessage(messageTextField.getText());
+        webSocketClient.sendMessageWithUserName(messageTextField.getText());
+        webSocketClient.showMessageOnGUI(messageTextField.getText());
 
     }
 
@@ -68,28 +68,23 @@ public class WebSocketChatController {
 
     public void upload(ActionEvent actionEvent) {
 
-
-//            webSocketClient.sendFile(filePathView.getText(), filePathView.getText());
-
-//        TODO: sprawdzić dlaczego kod poniżej nie działa
-        if ((filePath.equals(null))) {
-            btnUpload.disableProperty();
-        } else {
-            webSocketClient.sendFile(filePath);
-        }
-//        filePath.equals(null) ? btnUpload.disableProperty() : webSocketClient.sendFile(pathName, filePath); // nie działa :-(
+        webSocketClient.sendMessage("#123456789#" + file.getName());
+        webSocketClient.sendFile();
 
     }
 
     public void chooseFile(ActionEvent actionEvent) {
 
-        Optional<String> filePathView = FilePathChooser.getFilePath();
-        if (filePathView.isPresent()) {
-            this.filePathView.setText(filePathView.get());
-            this.filePath = filePathView.get();
+        Optional<File> file = FilePathChooser.getFile();
+        if (file.isPresent()) {
+            this.filePathView.setText(file.get().getAbsolutePath());
+            this.file = file.get();
+//            System.out.println(file.get().getAbsolutePath());
+            this.btnUpload.setDisable(false);
         } else {
             this.filePathView.clear();
-            this.filePath = null;
+            this.file = null;
+            this.btnUpload.setDisable(true);
         }
 
 
@@ -136,8 +131,8 @@ public class WebSocketChatController {
             }
         }
 
-        public void sendMessage(String message) {
-            chatTextArea.appendText(user + ": " + message + "\n");
+        public void sendMessageWithUserName(String message) {
+
             try {
                 System.out.println("Message was sent: " + message);
                 session.getBasicRemote().sendText(user + ": " + message);
@@ -146,35 +141,39 @@ public class WebSocketChatController {
             }
         }
 
+        public void sendMessage(String message) {
 
-        public void sendFile(String filePath) {
-            Path chosenFileName=new File(filePathView.getText()).toPath();
-            Path fileName = chosenFileName.getFileName();
-
-            chatTextArea.appendText(user + " send you a file: " + chosenFileName
-                    + "\n" + "if you want download this file please click on link "
-                    + fileName + "\n");
             try {
-                System.out.println("File was sent: " + filePath);
-
-                ;
-                session.getBasicRemote()
-                        .sendBinary(ByteBuffer
-                                .wrap(Files.readAllBytes(chosenFileName)));
-                //TODO: jak w powyższej metodzie przesłac nazwę pliku do serwera razem z bajtami pliku
-
+                session.getBasicRemote().sendText(message);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
-        public void getFile(String filePath){
 
-
-
+        public void showMessageOnGUI(String message) {
+            chatTextArea.appendText(user + ": " + message + "\n");
 
         }
 
 
+        public void sendFile() {
+
+            try {
+                System.out.println("File was sent: " + file.getAbsolutePath());
+                session.getBasicRemote()
+                        .sendBinary(ByteBuffer
+                                .wrap(Files.readAllBytes(file.toPath())));
+
+            } catch (IOException ex) {
+
+                ex.printStackTrace();
+            }
+        }
+
+        public void getFile(String filePath) {
+
+
+        }
 
 
     }
