@@ -8,8 +8,10 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Optional;
 
+import javax.swing.*;
 import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
 import javax.websocket.ContainerProvider;
@@ -23,32 +25,49 @@ import javax.websocket.WebSocketContainer;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 
 public class WebSocketChatController {
 
     @FXML
     TextArea chatTextArea;
     @FXML
-    TextField messageTextField, filePathView, userTextField, sentFileTextField;
+    TextField messageTextField, filePathView, userTextField;
     @FXML
     Button btnSet, btnUpload, btnSend, btnChooseFile, btnDownload;
+    @FXML
+    MenuButton menuBtn;
 
     //TODO: zrobić tak żeby w oknie czatu nick był pogrubiony, chyba trzeba będzie użyć html
     private String user;
     private File file;
     private WebSocketClient webSocketClient;
     private String uploadingFileName;
-    private byte[] bufferedFile;
+    private HashMap<MenuItem, FileComposition> filesMap = new HashMap<>();
+
+    public FileComposition getFileComposition() {
+        return fileComposition;
+    }
+
+    private FileComposition fileComposition;
+
+
+    public void putToMap(FileComposition fileComposition, MenuItem menuItem) {
+        filesMap.put(menuItem, fileComposition);
+    }
+
+    public FileComposition getFromMap(MenuItem menuItem) {
+        return filesMap.get(menuItem);
+
+    }
 
     public void setUploadingFileName(String uploadingFileName) {
         this.uploadingFileName = uploadingFileName;
     }
 
-    public void setBufferedFile(byte[] bufferedFile) {
-        this.bufferedFile = bufferedFile;
+    public void setBufferedFile(FileComposition fileComposition) {
+        this.fileComposition=fileComposition;
+        
     }
 
     @FXML
@@ -86,8 +105,8 @@ public class WebSocketChatController {
 
         webSocketClient.sendMessage("#123456789#" + file.getName());
         webSocketClient.sendFile();
-        webSocketClient.sendMessageWithUserName("send you a file: " + file.getName() );
-        sentFileTextField.setText(file.getName());
+        webSocketClient.sendMessageWithUserName("send you a file: " + file.getName());
+//        sentFileTextField.setText(file.getName());
 
 
     }
@@ -105,21 +124,19 @@ public class WebSocketChatController {
             this.file = null;
             this.btnUpload.setDisable(true);
         }
-
-
     }
 
     //TODO: zaimplpementować okienko informujące o przesłaniu pliku z opcją pobierania go
     public void download(ActionEvent actionEvent) throws IOException {
-        System.out.println(bufferedFile.length);
+//        System.out.println(bufferedFile.length);
         System.out.println(uploadingFileName);
         Optional<File> file = FilePathChooser.getDirectory();
         if (!file.isPresent()) {
             return;
         }
 
-        File fileName = new File(file.get().getAbsolutePath()+"/" + uploadingFileName);
-        Files.write(fileName.toPath(), bufferedFile);
+        File fileName = new File(file.get().getAbsolutePath() + "/" + fileComposition.getFileName());
+        Files.write(fileName.toPath(), fileComposition.getFiles());
     }
 
     @ClientEndpoint
@@ -166,8 +183,18 @@ public class WebSocketChatController {
         public void onMessage(byte[] buffer, Session session) {
             System.out.println("File was caught.");
             btnDownload.setDisable(false);
-            sentFileTextField.setText(uploadingFileName);
-            webSocketChatController.setBufferedFile(buffer);
+//            sentFileTextField.setText(uploadingFileName);
+// stwrzyć nową klasę, która ma dwa pola konstruktor i gettery, będzie miała tablicec bytów i nazwę pliku uploadingFileName
+            MenuItem menuItem = new MenuItem(uploadingFileName);
+            FileComposition fileComposition = new FileComposition(buffer, uploadingFileName);
+            menuItem.setOnAction(event -> {
+                
+                webSocketChatController.setBufferedFile(fileComposition);
+            });
+           
+            menuBtn.getItems().add(menuItem);
+           
+            putToMap( fileComposition, menuItem);
 
         }
 
