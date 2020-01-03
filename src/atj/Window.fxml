@@ -4,21 +4,25 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.ColorAdjust?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane minHeight="299.0" minWidth="354.0" prefHeight="359.0" prefWidth="402.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="atj.WebSocketChatController">
+<AnchorPane minHeight="299.0" minWidth="354.0" prefHeight="595.0" prefWidth="419.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="atj.WebSocketChatController">
    <children>
       <Label layoutX="46.0" layoutY="38.0" text="User:" />
-      <TextField fx:id="userTextField" layoutX="85.0" layoutY="33.0" prefHeight="26.0" prefWidth="250.0" />
-      <TextArea fx:id="chatTextArea" layoutX="85.0" layoutY="68.0" prefHeight="162.0" prefWidth="250.0" />
-      <TextField fx:id="messageTextField" layoutX="85.0" layoutY="240.0" prefHeight="26.0" prefWidth="250.0" />
-      <Label layoutX="46.0" layoutY="142.0" text="Chat:" />
-      <Label layoutX="19.0" layoutY="245.0" text="Message:" />
+      <Label layoutX="45.0" layoutY="193.0" text="Chat:" />
+      <Label layoutX="21.0" layoutY="488.0" text="Message:" />
+      <Label layoutX="20.0" layoutY="522.0" text="File:" />
+      <Label layoutX="124.0" layoutY="360.0" text="Uploaded files for downloading" />
+      <TextField fx:id="userTextField" layoutX="85.0" layoutY="33.0" prefHeight="26.0" prefWidth="250.0" style="-fx-background-color: lightblue;"></TextField>
+      <TextField fx:id="messageTextField" layoutX="84.0" layoutY="483.0" prefHeight="26.0" prefWidth="250.0" style="-fx-background-color: lightblue;" />
+      <TextField fx:id="filePathView" editable="false" layoutX="83.0" layoutY="517.0" prefHeight="26.0" prefWidth="250.0" />
+      <TextField fx:id="sentFileTextField" editable="false" layoutX="83.0" layoutY="386.0" prefHeight="26.0" prefWidth="250.0" />
+      <TextArea fx:id="chatTextArea" editable="false" layoutX="83.0" layoutY="72.0" prefHeight="260.0" prefWidth="250.0" wrapText="true" />
       <Button fx:id="btnSet" layoutX="346.0" layoutY="33.0" mnemonicParsing="false" onAction="#btnSet_Click" text="Set" />
-      <Button fx:id="btnSend" layoutX="341.0" layoutY="240.0" mnemonicParsing="false" onAction="#btnSend_Click" text="Send" />
-      <Label layoutX="19.0" layoutY="312.0" text="Załącznik" />
-      <TextField fx:id="filePathView" layoutX="85.0" layoutY="307.0" prefHeight="26.0" prefWidth="250.0" />
-      <Button fx:id="btnChooseFile" layoutX="119.0" layoutY="273.0" mnemonicParsing="false" onAction="#chooseFile" text="Choose file" />
-      <Button fx:id="btnUpload" layoutX="250.0" layoutY="273.0" mnemonicParsing="false" onAction="#upload" text="Send file" disable="true"/>
+      <Button fx:id="btnSend" layoutX="357.0" layoutY="483.0" mnemonicParsing="false" onAction="#btnSend_Click" text="Send" />
+      <Button fx:id="btnChooseFile" layoutX="84.0" layoutY="550.0" mnemonicParsing="false" onAction="#chooseFile" text="Choose file" />
+      <Button fx:id="btnUpload" disable="true" layoutX="270.0" layoutY="550.0" mnemonicParsing="false" onAction="#upload" text="Send file" />
+      <Button fx:id="btnDownload" disable="true"  layoutX="163.0" layoutY="422.0" mnemonicParsing="false" onAction="#download" text="Download file" />
    </children>
 </AnchorPane>

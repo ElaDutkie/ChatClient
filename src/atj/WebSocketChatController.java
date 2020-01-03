@@ -1,5 +1,6 @@
 package atj;
 
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -31,17 +32,28 @@ public class WebSocketChatController {
     @FXML
     TextArea chatTextArea;
     @FXML
-    TextField messageTextField, filePathView, userTextField;
+    TextField messageTextField, filePathView, userTextField, sentFileTextField;
     @FXML
-    Button btnSet, btnUpload, btnSend;
+    Button btnSet, btnUpload, btnSend, btnChooseFile, btnDownload;
 
+    //TODO: zrobić tak żeby w oknie czatu nick był pogrubiony, chyba trzeba będzie użyć html
     private String user;
     private File file;
     private WebSocketClient webSocketClient;
+    private String uploadingFileName;
+    private byte[] bufferedFile;
+
+    public void setUploadingFileName(String uploadingFileName) {
+        this.uploadingFileName = uploadingFileName;
+    }
+
+    public void setBufferedFile(byte[] bufferedFile) {
+        this.bufferedFile = bufferedFile;
+    }
 
     @FXML
     private void initialize() {
-        webSocketClient = new WebSocketClient();
+        webSocketClient = new WebSocketClient(this);
         user = userTextField.getText();
     }
 
@@ -51,12 +63,14 @@ public class WebSocketChatController {
             return;
         }
         user = userTextField.getText();
+
     }
 
     @FXML
     private void btnSend_Click() {
         webSocketClient.sendMessageWithUserName(messageTextField.getText());
         webSocketClient.showMessageOnGUI(messageTextField.getText());
+        messageTextField.clear();
 
     }
 
@@ -72,6 +86,9 @@ public class WebSocketChatController {
 
         webSocketClient.sendMessage("#123456789#" + file.getName());
         webSocketClient.sendFile();
+        webSocketClient.sendMessageWithUserName("send you a file: " + file.getName() );
+        sentFileTextField.setText(file.getName());
+
 
     }
 
@@ -92,12 +109,28 @@ public class WebSocketChatController {
 
     }
 
+    //TODO: zaimplpementować okienko informujące o przesłaniu pliku z opcją pobierania go
+    public void download(ActionEvent actionEvent) throws IOException {
+        System.out.println(bufferedFile.length);
+        System.out.println(uploadingFileName);
+        Optional<File> file = FilePathChooser.getDirectory();
+        if (!file.isPresent()) {
+            return;
+        }
+
+        File fileName = new File(file.get().getAbsolutePath()+"/" + uploadingFileName);
+        Files.write(fileName.toPath(), bufferedFile);
+    }
+
     @ClientEndpoint
     public class WebSocketClient {
-        private Session session;
-        private String uploadingFileName;
 
-        public WebSocketClient() {
+        private Session session;
+
+        private WebSocketChatController webSocketChatController;
+
+        public WebSocketClient(WebSocketChatController webSocketChatController) {
+            this.webSocketChatController = webSocketChatController;
             connectToWebSocket();
         }
 
@@ -121,11 +154,9 @@ public class WebSocketChatController {
         @OnMessage
         public void onMessage(String message, Session session) {
             System.out.println("Message was received");
-            // TODO: sprawdzić dlaczego drukowana nazwa pliku jest nullem
-
             if (message.contains("#123456789#")) {
-                uploadingFileName = message.replace("#123456789#", "");
-
+                webSocketChatController.setUploadingFileName(message.replace("#123456789#", ""));
+//                chatTextArea.setText(chatTextArea.getText() + user + ": " + "send you a file " + uploadingFileName + "\n");
             } else {
                 chatTextArea.setText(chatTextArea.getText() + message + "\n");
             }
@@ -134,8 +165,9 @@ public class WebSocketChatController {
         @OnMessage
         public void onMessage(byte[] buffer, Session session) {
             System.out.println("File was caught.");
-            System.out.println(uploadingFileName);
-            System.out.println(buffer.length);
+            btnDownload.setDisable(false);
+            sentFileTextField.setText(uploadingFileName);
+            webSocketChatController.setBufferedFile(buffer);
 
         }
 
@@ -154,6 +186,7 @@ public class WebSocketChatController {
             try {
                 System.out.println("Message was sent: " + message);
                 session.getBasicRemote().sendText(user + ": " + message);
+//                messageTextField.setText("");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -187,11 +220,6 @@ public class WebSocketChatController {
 
                 ex.printStackTrace();
             }
-        }
-
-        //TODO: zaimplpementować okienko informujące o przesłaniu pliku z opcją pobierania go
-        public void getFile(String filePath) {
-
         }
 
     }
